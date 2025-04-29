@@ -2,8 +2,7 @@ name: Ejecutar BondScrapper semanalmente
 
 on:
   schedule:
-    # Ejecutar los viernes a las 13:30 hora de Guatemala (19:30 UTC)
-    - cron: '30 19 * * 5'
+    - cron: '30 19 * * 5'  # Ejecutar los viernes a las 13:30 hora de Guatemala (19:30 UTC)
   workflow_dispatch:
 
 jobs:
@@ -15,11 +14,6 @@ jobs:
       uses: actions/checkout@v3
       with:
         persist-credentials: true  
-
-    - name: Verificar estructura de directorios  # Paso adicional para verificar los archivos
-      run: |
-        ls -R 
-
 
     - name: Configurar Python
       uses: actions/setup-python@v4
@@ -36,11 +30,17 @@ jobs:
       run: |
         papermill ./Scripts/BondScrapper.ipynb salida.ipynb
 
-    - name: Confirmar y hacer commit de nuevos archivos .csv
+    - name: Subir archivos CSV generados como artefactos
+      uses: actions/upload-artifact@v3
+      with:
+        name: archivos-csv
+        path: Input/**/*.csv  # Incluye todos los archivos CSV dentro de cualquier subcarpeta
+
+    - name: Confirmar y hacer commit de nuevos archivos CSV
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
-        git add Input/*/*.csv  # Ajuste del patrón
+        git add Input/**/*.csv  # Asegúrate de agregar todos los archivos CSV en subcarpetas
         if git diff --cached --quiet; then
           echo "No hay cambios para commitear."
         else
