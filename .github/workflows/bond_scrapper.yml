@@ -16,11 +16,10 @@ jobs:
       with:
         persist-credentials: true  
 
-    - name: Verificar clonación del repositorio
-        run: |
-            echo "Verificando contenido del repositorio..."
-            ls -R
-        
+    - name: Verificar estructura de directorios  # Paso adicional para verificar los archivos
+      run: |
+        ls -R 
+
 
     - name: Configurar Python
       uses: actions/setup-python@v4
