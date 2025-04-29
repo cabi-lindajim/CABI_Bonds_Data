@@ -16,6 +16,10 @@ jobs:
       with:
         persist-credentials: true  
 
+    - name: Verificar estructura de directorios  # Paso adicional para verificar los archivos
+      run: |
+        ls -R Input
+
     - name: Configurar Python
       uses: actions/setup-python@v4
       with:
@@ -35,7 +39,7 @@ jobs:
       run: |
         git config --global user.name "github-actions"
         git config --global user.email "github-actions@github.com"
-        git add Input/**/*.csv
+        git add Input/*/*.csv  # Ajuste del patrón
         if git diff --cached --quiet; then
           echo "No hay cambios para commitear."
         else
