@@ -13,6 +13,13 @@ patron_a <- paste0(ult_viernes, "\\.csv$")
 
 patron_b <- paste0(penult_viernes,"\\.csv$")
 
+# Nombres para archivos
+
+nuevos_registros_name <- paste("nuevos_registros ",ult_viernes,".csv",sep="")
+registros_eliminados_name <- paste("registros_eliminados ",ult_viernes,".csv",sep="")
+
+data_actual_name <- paste("data_semanal_consolidado ",ult_viernes,".csv",sep = "")
+
 
 #==== Almacenar subdirectorios =========
 
@@ -56,4 +63,11 @@ cat("Número de registros ELIMINADOS:", nrow(eliminados_registros), "\n")
 head(nuevos_registros)
 head(eliminados_registros)
 
+# Exportar
+
+write_csv(nuevos_registros,here("Output",nuevos_registros_name))
+
+write_csv(eliminados_registros,here("Output",registros_eliminados_name))
+
+write_csv(data_actual,here("Output",data_actual_name))
 
