@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: archivos_csv
-        path: archivos_csv/**/*.csv
+        path: Input/**/*.csv
 
     - name: Confirmar y hacer commit de nuevos archivos CSV
       run: |
