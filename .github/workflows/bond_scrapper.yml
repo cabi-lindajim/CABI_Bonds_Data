@@ -2,7 +2,7 @@ name: Ejecutar BondScrapper semanalmente
 
 on:
   schedule:
-    - cron: '30 19 * * 5'  # Viernes 13:30 hora Guatemala (19:30 UTC)
+    - cron: '30 19 * * 5'  # Viernes 13:30 hora Guatemala
   workflow_dispatch:
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Instalar dependencias
+    - name: Instalar dependencias y Jupyter
       run: |
         pip install --upgrade pip
         pip install -r requirements.txt
@@ -26,15 +26,16 @@ jobs:
 
     - name: Ejecutar notebook BondScrapper.ipynb
       run: |
-        papermill Scripts/BondScrapper.ipynb salida.ipynb
+        papermill BondScrapper.ipynb salida.ipynb
+      working-directory: Scripts  # Muy importante para que ../Input funcione
 
-    - name: Verificar archivos generados
+    - name: Mostrar archivos CSV generados
       run: |
-        echo "Buscando archivos CSV generados en Input/"
-        find Input -type f -name "*.csv" || echo "⚠️ No se encontraron archivos"
+        echo "Archivos CSV encontrados en Input/"
+        find Input -name '*.csv'
 
-    - name: Subir archivos CSV generados como artefactos
+    - name: Subir archivos CSV como artefactos
       uses: actions/upload-artifact@v4
       with:
         name: archivos_csv
-        path: Input/**/*.csv
+        path: Input/**/*.csv  # Ruta relativa desde la raíz del repo
