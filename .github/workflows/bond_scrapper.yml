@@ -2,7 +2,7 @@ name: Ejecutar BondScrapper semanalmente
 
 on:
   schedule:
-    - cron: '30 19 * * 5'  # Ejecutar los viernes a las 13:30 hora de Guatemala (19:30 UTC)
+    - cron: '30 19 * * 5'  # Viernes 13:30 hora Guatemala
   workflow_dispatch:
 
 jobs:
@@ -12,8 +12,6 @@ jobs:
     steps:
     - name: Clonar el repositorio
       uses: actions/checkout@v3
-      with:
-        persist-credentials: true  
 
     - name: Configurar Python
       uses: actions/setup-python@v4
@@ -28,22 +26,16 @@ jobs:
 
     - name: Ejecutar notebook BondScrapper.ipynb
       run: |
-        papermill ./Scripts/BondScrapper.ipynb salida.ipynb
+        papermill BondScrapper.ipynb salida.ipynb
+      working-directory: Scripts  # Muy importante para que ../Input funcione
 
-    - name: Subir archivos CSV generados como artefactos
+    - name: Mostrar archivos CSV generados
+      run: |
+        echo "Archivos CSV encontrados en Input/"
+        find Input -name '*.csv'
+
+    - name: Subir archivos CSV como artefactos
       uses: actions/upload-artifact@v4
       with:
         name: archivos_csv
-        path: /Input/**/*.csv
-
-    - name: Confirmar y hacer commit de nuevos archivos CSV
-      run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
-        git add Input/**/*.csv  # Asegúrate de agregar todos los archivos CSV en subcarpetas
-        if git diff --cached --quiet; then
-          echo "No hay cambios para commitear."
-        else
-          git commit -m "📊 Nuevos datos de bonos - $(date +'%Y-%m-%d')"
-          git push
-        fi
+        path: Input/**/*.csv  # Ruta relativa desde la raíz del repo
