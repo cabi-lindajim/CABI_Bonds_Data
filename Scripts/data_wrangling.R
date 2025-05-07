@@ -20,6 +20,20 @@ registros_eliminados_name <- paste("registros_eliminados ",ult_viernes,".csv",se
 
 data_actual_name <- paste("data_semanal_consolidado ",ult_viernes,".csv",sep = "")
 
+# ============= Functions ===========
+
+# Función para yearfrac 30/360 US NASD
+yearfrac_30_360_nasd <- function(start_date, end_date) {
+  d1 <- day(start_date); m1 <- month(start_date); y1 <- year(start_date)
+  d2 <- day(end_date);   m2 <- month(end_date);   y2 <- year(end_date)
+  
+  d1_adj <- if_else(d1 == 31, 30, d1)
+  d2_adj <- if_else((d2 == 31) & (d1_adj %in% c(30, 31)), 30, d2)
+  
+  ((360 * (y2 - y1)) +
+      (30  * (m2 - m1)) +
+      (d2_adj - d1_adj)) / 360
+}
 
 #==== Almacenar subdirectorios =========
 
@@ -32,14 +46,14 @@ archivos_t <- list.files(path = here("Input"),
 
 
 archivos_l <- list.files(path = here("Input"),
-                         pattern = patron_b,      # filtra sólo archivos .csv (puedes cambiar patrón)
+                         pattern = patron_b,    # filtra sólo archivos .csv (puedes cambiar patrón)
                          full.names = TRUE,
                          recursive  = TRUE)
 
 # 1.3 Leer cada archivo y almacenarlos en una lista
-lista_semanaactual <- lapply(archivos_t, read.csv, stringsAsFactors = FALSE)
+lista_semanaactual <- lapply(archivos_t, read_csv)
 
-lista_semanapasada <- lapply(archivos_l, read.csv, stringsAsFactors = FALSE)
+lista_semanapasada <- lapply(archivos_l, read_csv)
 
 
 # 1.4 (Opcional) Combinar todos los data.frames en uno solo
@@ -63,11 +77,25 @@ cat("Número de registros ELIMINADOS:", nrow(eliminados_registros), "\n")
 head(nuevos_registros)
 head(eliminados_registros)
 
-# Exportar
+#==== Transform =========
+
+data_actual|>
+  mutate(Today = today(),
+         Tenor_Date = round(yearfrac_30_360_nasd(Today,Maturity),3))|>
+  filter(Status == "Active",
+         Currency == "USD")-> data_actual
+
+data_pasada|>
+  mutate(Today = today(),
+         Tenor_Date = round(yearfrac_30_360_nasd(Today,Maturity),3),
+         Status = "Active")|>
+  filter(Currency == "USD")-> data_pasada
+  
+
+#==== Exportar ==========
 
 write_csv(nuevos_registros,here("Output",nuevos_registros_name))
 
 write_csv(eliminados_registros,here("Output",registros_eliminados_name))
 
 write_csv(data_actual,here("Output",data_actual_name))
-
