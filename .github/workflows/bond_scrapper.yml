@@ -1,8 +1,8 @@
 name: Ejecutar BondScrapper semanalmente
 
 on:
-  schedule:
-    - cron: '30 19 * * *'  # Ejecutar todos los días a las 13:30 hora de Guatemala (19:30 UTC) #'30 19 * * 5'  # Viernes 13:30 hora Guatemala
+  schedule: # '30 19 * * *'  # Ejecutar todos los días a las 13:30 hora de Guatemala (19:30 UTC) 
+    - cron: '30 19 * * 5'  # Viernes 13:30 hora Guatemala
   workflow_dispatch:
 
 jobs:
