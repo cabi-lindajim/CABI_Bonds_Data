@@ -5,7 +5,7 @@ library(lubridate)
 
 #===== Parámetros definidos manualmente =====
 # Cambia esta fecha a la que desees consolidar (en formato "YYYY-MM-DD")
-fecha_objetivo <- as_date("2025-05-16")
+fecha_objetivo <- as_date("2025-06-12")
 
 # Calcula la fecha de la semana anterior
 fecha_anterior <- fecha_objetivo - 7
@@ -64,14 +64,14 @@ cat("Número de registros ELIMINADOS:", nrow(eliminados_registros), "\n")
 #===== Transformar datos =====
 data_actual <- data_actual |>
   mutate(
-    Today = today(),
+    Today = fecha_objetivo,
     Tenor_Date = round(yearfrac_30_360_nasd(Today, Maturity), 3)
   ) |>
   filter(Status == "Active", Currency == "USD")
 
 data_pasada <- data_pasada |>
   mutate(
-    Today = today(),
+    Today = fecha_objetivo,
     Tenor_Date = round(yearfrac_30_360_nasd(Today, Maturity), 3),
     Status = "Active"
   ) |>
