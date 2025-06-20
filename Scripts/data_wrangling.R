@@ -1,15 +1,18 @@
 #===== Declaración de Librerías =======
 library(tidyverse)
 library(here)
+library(stringr)
 
 #====== Params ===========
 
-ult_viernes <- floor_date(today(),unit = "week", week_start = 5)
+ult_viernes <- floor_date(today(),unit = "week", week_start = 5)|>
+  as.Date(format="%Y-%m-%d")
 
 penult_viernes = ult_viernes-7
 
 # Generación de patrones en nombres de archivo
 patron_a <- paste0(ult_viernes, "\\.csv$")
+
 
 patron_b <- paste0(penult_viernes,"\\.csv$")
 
@@ -67,8 +70,15 @@ eliminados_ISIN <- setdiff(data_pasada$ISIN, data_actual$ISIN)
 
 # 2. Filtrar los data.frames por esos ISIN
 nuevos_registros <- subset(data_actual,   ISIN %in% nuevos_ISIN)
-eliminados_registros <- subset(data_pasada, ISIN %in% eliminados_ISIN)
 
+if ( is.null(eliminados_ISIN)) {
+  print("No se eliminaron registros")
+} else{
+  eliminados_registros <- subset(data_pasada, ISIN %in% eliminados_ISIN)
+  
+}
+  
+  
 # 3. (Opcional) Mostrar resultados
 cat("Número de registros NUEVOS:", nrow(nuevos_registros), "\n")
 cat("Número de registros ELIMINADOS:", nrow(eliminados_registros), "\n")
@@ -83,13 +93,27 @@ data_actual|>
   mutate(Today = today(),
          Tenor_Date = round(yearfrac_30_360_nasd(Today,Maturity),3))|>
   filter(Status == "Active",
-         Currency == "USD")-> data_actual
+         Currency == "USD")|>
+  mutate(
+    Regulation = case_when(
+      str_detect(Description, "144A") ~ "144A",
+      str_detect(Description, "Reg S") ~ "Reg S",
+      TRUE                            ~ "Unspecified"
+    )
+       )-> data_actual
 
 data_pasada|>
   mutate(Today = today(),
          Tenor_Date = round(yearfrac_30_360_nasd(Today,Maturity),3),
          Status = "Active")|>
-  filter(Currency == "USD")-> data_pasada
+  filter(Currency == "USD")|>
+  mutate(
+    Regulation = case_when(
+      str_detect(Description, "144A") ~ "144A",
+      str_detect(Description, "Reg S") ~ "Reg S",
+      TRUE                            ~ "Unspecified"
+    ))-> data_pasada
+
   
 
 #==== Exportar ==========
