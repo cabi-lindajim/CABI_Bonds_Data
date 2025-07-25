@@ -1,4 +1,8 @@
 #===== Declaración de Librerías =======
+install.packages("tidyverse")
+install.packages("here")
+install.packages("stringr")
+
 library(tidyverse)
 library(here)
 library(stringr)
@@ -123,3 +127,4 @@ write_csv(nuevos_registros,here("Output",nuevos_registros_name))
 write_csv(eliminados_registros,here("Output",registros_eliminados_name))
 
 write_csv(data_actual,here("Output",data_actual_name))
+
