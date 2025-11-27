@@ -9,7 +9,7 @@ library(stringr)
 
 #====== Params ===========
 
-ultimo_procesado <- as_date("2025-10-17")     # <-- tu último corte real9
+ultimo_procesado <- as_date("2025-11-07")     # <-- tu último corte real9
 ult_viernes      <- ultimo_procesado + weeks(1)  # = 2025-08-01
 penult_viernes   <- ult_viernes - weeks(1)       # = 2025-07-25
 
@@ -131,6 +131,9 @@ write_csv(nuevos_registros,here("Output",nuevos_registros_name))
 write_csv(eliminados_registros,here("Output",registros_eliminados_name))
 
 write_csv(data_actual,here("Output",data_actual_name))
+
+
+
 
 
 
