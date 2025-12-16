@@ -1,8 +1,8 @@
 name: Ejecutar BondScrapper semanalmente
 
 on:
-  schedule: # '30 19 * * *'  # Ejecutar todos los días a las 13:30 hora de Guatemala (19:30 UTC) 
-    - cron: '30 19 * * 5'  # Viernes 13:30 hora Guatemala
+  schedule:
+    - cron: '30 19 * * 5'  # Viernes 13:30 Guatemala (19:30 UTC)
   workflow_dispatch:
 
 jobs:
@@ -10,32 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Clonar el repositorio
-      uses: actions/checkout@v3
+      - name: Clonar el repositorio
+        uses: actions/checkout@v3
 
-    - name: Configurar Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Instalar dependencias y Jupyter
-      run: |
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install jupyter papermill
+      - name: Instalar dependencias y Jupyter
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install jupyter papermill
 
-    - name: Ejecutar notebook BondScrapper.ipynb
-      run: |
-        papermill BondScrapper.ipynb salida.ipynb
-      working-directory: Scripts  # Muy importante para que ../Input funcione
+      - name: Ejecutar notebook BondScrapper.ipynb
+        run: |
+          papermill BondScrapper.ipynb salida.ipynb
+        working-directory: Scripts
 
-    - name: Mostrar archivos CSV generados
-      run: |
-        echo "Archivos CSV encontrados en Input/"
-        find Input -name '*.csv'
+      - name: Mostrar CSV generados (debug)
+        run: |
+          echo "CSV en raiz/Input:"
+          find Input -name '*.csv' -type f || true
+          echo "CSV en Scripts/Input:"
+          find Scripts/Input -name '*.csv' -type f || true
 
-    - name: Subir archivos CSV como artefactos
-      uses: actions/upload-artifact@v4
-      with:
-        name: archivos_csv
-        path: Input/**/*.csv  # Ruta relativa desde la raíz del repo
+      - name: Subir CSV como artefactos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: archivos_csv
+          path: |
+            Input/**/*.csv
+            Scripts/Input/**/*.csv
+          if-no-files-found: warn
+
+      - name: Subir notebook ejecutado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: notebook_salida
+          path: Scripts/salida.ipynb
+          if-no-files-found: warn
+
